@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import './index.css';
 import logo from './assets/framecs-logo.png';
 
-const LAMBDA_API_URL = import.meta.env.VITE_LAMBDA_API_URL;
+const LAMBDA_API_URL = import.meta.env.LAMBDA_API_BASE_URL;
+const DEVICE_ID = 2;
 
 const App = () => {
     const [message, setMessage] = useState('');
@@ -20,17 +21,16 @@ const App = () => {
             const response = await fetch(LAMBDA_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code }),
+                body: JSON.stringify({
+                    code,
+                    deviceId: DEVICE_ID
+                }),
             });
 
             const data = await response.json();
             setIsLoading(false);
 
-            if (data.success) {
-                setMessage(data.message);
-            } else {
-                setMessage(data.message);
-            }
+            setMessage(data.message);
 
         } catch (error) {
             console.error('Error:', error);

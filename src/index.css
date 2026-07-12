@@ -3,15 +3,7 @@
 }
 
 .custom-bt {
-    background-color: #ff5a5f;
-}
-
-.custom-bt:hover {
-    background-color: #ff5a5f;
-}
-
-.custom-bt:active {
-    background-color: #ff5a5f;
+    background-color: #ffb800;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
