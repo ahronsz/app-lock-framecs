@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './index.css';
 import logo from './assets/framecs-logo.png';
 
-const LAMBDA_API_URL = import.meta.env.LAMBDA_API_BASE_URL;
+const LAMBDA_API_BASE_URL = import.meta.env.LAMBDA_API_BASE_URL;
 const DEVICE_ID = 2;
 
 const App = () => {
