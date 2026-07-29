@@ -3,7 +3,7 @@ import './index.css';
 import logo from './assets/framecs-logo.png';
 
 const LAMBDA_API_BASE_URL = import.meta.env.VITE_LAMBDA_API_BASE_URL;
-const DEVICE_ID = 2;
+const DEVICE_ID = '01985c86-04a8-7d2e-8c69-82b0d5bcd8c5';
 
 const App = () => {
     const [message, setMessage] = useState('');
