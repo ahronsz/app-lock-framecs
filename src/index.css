@@ -1,18 +1,518 @@
-.custom-bg {
-    background-image: url('./assets/fondo.png');
-    background-size: cover;       /* La imagen cubre toda la pantalla */
-    background-position: center;  /* Centrada */
-    background-repeat: no-repeat; /* No se repite */
-    min-height: 100vh;
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
 }
 
-.custom-bt {
-    background-color: #ffb800;
+body {
+    background: #121212;
+
+    font-family:
+            system-ui,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
 }
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.custom-bg {
+    position: relative;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-sizing: border-box;
+
+    padding: 24px;
+
+    background-image: url('./assets/fondo.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/*
+    Capa oscura encima del fondo.
+    Hace que el contenido sea más fácil de leer.
+*/
+
+.custom-bg::before {
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    pointer-events: none;
+}
+
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+   ========================================================= */
+
+.access-container {
+    position: relative;
+
+    z-index: 1;
+
+    width: 100%;
+    max-width: 430px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.app-logo {
+    display: block;
+
+    width: min(250px, 70%);
+
+    height: auto;
+
+    margin-bottom: 24px;
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.access-card {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    padding: 28px;
+
+    background: rgba(18, 18, 18, 0.88);
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    border-radius: 24px;
+
+    box-shadow:
+            0 20px 60px rgba(0, 0, 0, 0.40);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.access-header {
+    text-align: center;
+
+    margin-bottom: 24px;
+}
+
+.access-header h1 {
+    margin: 0 0 8px;
+
+    color: #ffffff;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    line-height: 1.2;
+}
+
+.access-header p {
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.60);
+
+    font-size: 14px;
+}
+
+/* =========================================================
+   DEVICES
+   ========================================================= */
+
+.devices {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+}
+
+.device-card {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    box-sizing: border-box;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: #ffffff;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition:
+            transform 0.15s ease,
+            background 0.15s ease,
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.device-card:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.09);
+
+    transform: translateY(-1px);
+}
+
+.device-card:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.device-card.selected {
+    background: rgba(255, 184, 0, 0.12);
+
+    border-color: #ffb800;
+
+    box-shadow:
+            0 0 0 1px rgba(255, 184, 0, 0.10);
+}
+
+.device-card:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.65;
+}
+
+/* =========================================================
+   DEVICE ICON
+   ========================================================= */
+
+.device-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #ffffff;
+}
+
+.device-icon span {
+    font-size: 25px;
+
+    line-height: 1;
+}
+
+/* =========================================================
+   DEVICE INFO
+   ========================================================= */
+
+.device-info {
+    min-width: 0;
+
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+
+    margin-left: 12px;
+}
+
+.device-info strong {
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.device-info span {
+    overflow: hidden;
+
+    color: rgba(255, 255, 255, 0.55);
+
+    font-size: 13px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* =========================================================
+   CHECK
+   ========================================================= */
+
+.device-check {
+    width: 24px;
+    height: 24px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #ffb800;
+
+    color: #121212;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    opacity: 0;
+
+    transform: scale(0.7);
+
+    transition:
+            opacity 0.15s ease,
+            transform 0.15s ease;
+}
+
+.device-check.visible {
+    opacity: 1;
+
+    transform: scale(1);
+}
+/* =========================================================
+   FORMULARIO
+   ========================================================= */
+
+.access-card form {
+    width: 100%;
+}
+
+.access-card label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   INPUT CÓDIGO
+   ========================================================= */
+
+.code-input {
+    width: 100%;
+
+    height: 58px;
+
+    box-sizing: border-box;
+
+    padding: 0 16px;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    background: rgba(255, 255, 255, 0.08);
+
+    color: #ffffff;
+
+    font-size: 22px;
+    font-weight: 600;
+
+    letter-spacing: 4px;
+
+    text-align: center;
+
+    outline: none;
+
+    transition:
+            border-color 0.15s ease,
+            background 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.code-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+
+    font-size: 15px;
+
+    font-weight: 400;
+
+    letter-spacing: normal;
+}
+
+.code-input:focus {
+    border-color: #ffb800;
+
+    background: rgba(255, 255, 255, 0.10);
+
+    box-shadow:
+            0 0 0 3px rgba(255, 184, 0, 0.10);
+}
+
+.code-input:disabled {
+    opacity: 0.60;
+}
+
+/* =========================================================
+   BOTÓN ABRIR
+   ========================================================= */
+
+.open-button {
+    width: 100%;
+
+    height: 58px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    margin-top: 14px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: #ffb800;
+
+    color: #121212;
+
+    font-size: 18px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+            transform 0.15s ease,
+            opacity 0.15s ease,
+            background 0.15s ease;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+.open-button:hover:not(:disabled) {
+    background: #ffc329;
+
+    transform: translateY(-1px);
+}
+
+.open-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.open-button:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+}
+
+.lock-icon {
+    font-size: 18px;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.spinner {
+    width: 18px;
+    height: 18px;
+
+    border: 2px solid rgba(18, 18, 18, 0.25);
+
+    border-top-color: #121212;
+
+    border-radius: 50%;
+
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================================
+   MENSAJE
+   ========================================================= */
+
+.message {
+    min-height: 22px;
+
+    margin-top: 18px;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    line-height: 1.4;
+
+    text-align: center;
+}
+
+.message.loading {
+    color: rgba(255, 255, 255, 0.60);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+footer {
+    margin-top: 18px;
+
+    color: rgba(255, 255, 255, 0.40);
+
+    font-size: 12px;
+
+    text-align: center;
+}
+
+/* =========================================================
+   NUMBER INPUT
+   ========================================================= */
 
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
+
     margin: 0;
 }
 
@@ -20,10 +520,88 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-html,
-body,
-#root {
-    height: 100%;
-    margin: 0;
-    background: #121212;
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .custom-bg {
+        align-items: flex-start;
+
+        padding: 40px 16px 24px;
+    }
+
+    .access-container {
+        max-width: 430px;
+    }
+
+    .app-logo {
+        width: 190px;
+
+        margin-bottom: 20px;
+    }
+
+    .access-card {
+        padding: 22px;
+
+        border-radius: 20px;
+    }
+
+    .access-header {
+        margin-bottom: 20px;
+    }
+
+    .access-header h1 {
+        font-size: 22px;
+    }
+
+    .device-card {
+        padding: 13px;
+    }
+
+    .device-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .code-input,
+    .open-button {
+        height: 56px;
+    }
+}
+
+/* =========================================================
+   PANTALLAS MUY PEQUEÑAS
+   ========================================================= */
+
+@media (max-height: 700px) {
+
+    .custom-bg {
+        align-items: flex-start;
+
+        padding-top: 20px;
+    }
+
+    .app-logo {
+        width: 150px;
+
+        margin-bottom: 14px;
+    }
+
+    .access-card {
+        padding: 18px;
+    }
+
+    .access-header {
+        margin-bottom: 16px;
+    }
+
+    .devices {
+        gap: 7px;
+    }
+
+    .device-card {
+        padding: 10px;
+    }
 }

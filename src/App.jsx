@@ -3,85 +3,256 @@ import './index.css';
 import logo from './assets/framecs-logo.png';
 
 const LAMBDA_API_BASE_URL = import.meta.env.VITE_LAMBDA_API_BASE_URL;
-const DEVICE_ID = '01985c86-04a8-7d2e-8c69-82b0d5bcd8c5';
+
+const DEVICES = [
+    {
+        id: import.meta.env.VITE_DEVICE_ID_PUCALLPA,
+        name: 'Pucallpa',
+        description: 'Chapa de Pucallpa',
+    },
+    {
+        id: import.meta.env.VITE_DEVICE_ID_HUANCAYO,
+        name: 'Huancayo',
+        description: 'Chapa de Huancayo',
+    }
+];
+
+const STORAGE_KEY = 'framecs-selected-device';
 
 const App = () => {
+    const [selectedDeviceId, setSelectedDeviceId] = useState(() => {
+        return localStorage.getItem(STORAGE_KEY) || '';
+    });
+
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    const selectedDevice = DEVICES.find(
+        (device) => device.id === selectedDeviceId
+    );
+
+    const handleDeviceSelect = (deviceId) => {
+        if (isLoading) return;
+
+        setSelectedDeviceId(deviceId);
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            deviceId
+        );
+
+        setMessage('');
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         const code = e.target.elements.code.value.trim();
-        if (!code) return setMessage('Por favor, ingrese un código.');
+
+        if (!selectedDeviceId) {
+            setMessage('Seleccione una ubicación.');
+            return;
+        }
+
+        if (!code) {
+            setMessage('Por favor, ingrese un código.');
+            return;
+        }
 
         setMessage('Procesando...');
         setIsLoading(true);
 
         try {
-            const response = await fetch(LAMBDA_API_BASE_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    code,
-                    deviceId: DEVICE_ID
-                }),
-            });
+            const response = await fetch(
+                LAMBDA_API_BASE_URL,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code,
+                        deviceId: selectedDeviceId,
+                    }),
+                }
+            );
 
             const data = await response.json();
-            setIsLoading(false);
 
-            setMessage(data.message);
-
+            setMessage(
+                data.message ||
+                'Solicitud procesada.'
+            );
         } catch (error) {
             console.error('Error:', error);
+
+            setMessage(
+                'Error de comunicación con el servidor.'
+            );
+        } finally {
             setIsLoading(false);
-            setMessage('Error de comunicación con el servidor.');
         }
     };
 
     return (
-        <div className="custom-bg d-flex flex-column justify-content-center align-items-center min-vh-100">
-            <div className="container text-center mt-n3">
+        <div className="custom-bg">
+
+            <main className="access-container">
+
+                {/* LOGO */}
                 <img
                     src={logo}
-                    alt="Logo"
-                    className="img-fluid mb-4"
-                    style={{ maxWidth: '250px' }}
+                    alt="FRAMECS"
+                    className="app-logo"
                 />
-                <div className="row justify-content-center">
-                    <div className="col-10 col-sm-8 col-md-6 col-lg-4">
-                        <form onSubmit={handleSubmit}>
-                            <div className="input-group input-group-lg mb-3">
-                                <span className="input-group-text">Código</span>
-                                <input
-                                    name="code"
-                                    placeholder="Ingrese código"
-                                    type="number"
-                                    inputMode="numeric"
-                                    pattern="[0-9]*"
-                                    maxLength={6}
-                                    className="form-control"
-                                    required
-                                    onInput={(e) => {
-                                        e.target.value = e.target.value.slice(0, 6);
-                                    }}
-                                    disabled={isLoading}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="btn custom-bt w-100 fs-4 text-white fw-bolder"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? 'Procesando...' : 'Abrir Puerta'}
-                            </button>
-                        </form>
-                        <p className="mt-3 fs-4 font-monospace text-white">
-                            {message}
+
+                <section className="access-card">
+
+                    {/* HEADER */}
+                    <header className="access-header">
+
+                        <h1>
+                            Control de acceso
+                        </h1>
+
+                        <p>
+                            Selecciona la puerta
                         </p>
+
+                    </header>
+
+                    {/* UBICACIONES */}
+                    <div className="devices">
+
+                        {DEVICES.map((device) => {
+
+                            const isSelected =
+                                selectedDeviceId === device.id;
+
+                            return (
+                                <button
+                                    key={device.id}
+                                    type="button"
+                                    className={`device-card ${
+                                        isSelected
+                                            ? 'selected'
+                                            : ''
+                                    }`}
+                                    onClick={() =>
+                                        handleDeviceSelect(
+                                            device.id
+                                        )
+                                    }
+                                    disabled={isLoading}
+                                >
+
+                                    <div className="device-icon">
+                                        <span>⌂</span>
+                                    </div>
+
+                                    <div className="device-info">
+
+                                        <strong>
+                                            {device.name}
+                                        </strong>
+
+                                        <span>
+                                            {device.description}
+                                        </span>
+
+                                    </div>
+
+                                    <div
+                                        className={`device-check ${
+                                            isSelected
+                                                ? 'visible'
+                                                : ''
+                                        }`}
+                                    >
+                                        ✓
+                                    </div>
+
+                                </button>
+                            );
+                        })}
+
                     </div>
-                </div>
-            </div>
+
+                    {/* FORMULARIO */}
+                    <form onSubmit={handleSubmit}>
+
+                        <label htmlFor="code">
+                            Código de acceso
+                        </label>
+
+                        <input
+                            id="code"
+                            name="code"
+                            placeholder="Ingrese su código"
+                            type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={6}
+                            className="code-input"
+                            required
+                            disabled={isLoading}
+                            autoComplete="off"
+                            onInput={(e) => {
+                                e.target.value =
+                                    e.target.value
+                                        .replace(/\D/g, '')
+                                        .slice(0, 6);
+                            }}
+                        />
+
+                        <button
+                            type="submit"
+                            className="open-button"
+                            disabled={
+                                isLoading ||
+                                !selectedDeviceId
+                            }
+                        >
+
+                            {isLoading ? (
+                                <>
+                                    <span className="spinner" />
+                                    Procesando...
+                                </>
+                            ) : (
+                                <>
+                                    <span className="lock-icon">
+                                        🔓
+                                    </span>
+                                    Abrir puerta
+                                </>
+                            )}
+
+                        </button>
+
+                    </form>
+
+                    {/* MENSAJE */}
+                    {message && (
+                        <div
+                            className={`message ${
+                                isLoading
+                                    ? 'loading'
+                                    : ''
+                            }`}
+                        >
+                            {message}
+                        </div>
+                    )}
+
+                </section>
+
+                <footer>
+                    Sistema de control de acceso
+                </footer>
+
+            </main>
+
         </div>
     );
 };
