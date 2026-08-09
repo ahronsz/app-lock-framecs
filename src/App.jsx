@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './index.css';
 import logo from './assets/framecs-logo.png';
 
-const LAMBDA_API_BASE_URL = import.meta.env.VITE_LAMBDA_API_BASE_URL;
+const LAMBDA_API_BASE_URL =
+    import.meta.env.VITE_LAMBDA_API_BASE_URL;
 
 const DEVICES = [
     {
@@ -14,7 +15,7 @@ const DEVICES = [
         id: import.meta.env.VITE_DEVICE_ID_HUANCAYO,
         name: 'Huancayo',
         description: 'Chapa de Huancayo',
-    }
+    },
 ];
 
 const STORAGE_KEY = 'framecs-selected-device';
@@ -27,12 +28,50 @@ const App = () => {
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    const codeInputRef = useRef(null);
+
     const selectedDevice = DEVICES.find(
         (device) => device.id === selectedDeviceId
     );
 
+    /*
+     * Si el dispositivo guardado en localStorage
+     * ya no existe en DEVICES, lo eliminamos.
+     */
+    useEffect(() => {
+        const deviceExists = DEVICES.some(
+            (device) => device.id === selectedDeviceId
+        );
+
+        if (selectedDeviceId && !deviceExists) {
+            setSelectedDeviceId('');
+            localStorage.removeItem(STORAGE_KEY);
+        }
+    }, [selectedDeviceId]);
+
+    /*
+     * Cuando el usuario selecciona una puerta,
+     * habilitamos el input y colocamos el foco.
+     */
+    useEffect(() => {
+        if (selectedDeviceId && !isLoading) {
+            codeInputRef.current?.focus();
+        }
+    }, [selectedDeviceId, isLoading]);
+
     const handleDeviceSelect = (deviceId) => {
-        if (isLoading) return;
+        if (isLoading) {
+            return;
+        }
+
+        /*
+         * Si vuelve a seleccionar la misma puerta,
+         * no hacemos nada.
+         */
+        if (deviceId === selectedDeviceId) {
+            codeInputRef.current?.focus();
+            return;
+        }
 
         setSelectedDeviceId(deviceId);
 
@@ -42,20 +81,42 @@ const App = () => {
         );
 
         setMessage('');
+
+        /*
+         * Limpiamos el código anterior.
+         */
+        if (codeInputRef.current) {
+            codeInputRef.current.value = '';
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const code = e.target.elements.code.value.trim();
+        if (isLoading) {
+            return;
+        }
 
+        const code =
+            codeInputRef.current?.value.trim() || '';
+
+        /*
+         * Seguridad adicional:
+         * aunque el input esté disabled,
+         * validamos nuevamente aquí.
+         */
         if (!selectedDeviceId) {
-            setMessage('Seleccione una ubicación.');
+            setMessage(
+                'Seleccione una puerta para continuar.'
+            );
             return;
         }
 
         if (!code) {
-            setMessage('Por favor, ingrese un código.');
+            setMessage(
+                'Por favor, ingrese un código.'
+            );
+            codeInputRef.current?.focus();
             return;
         }
 
@@ -83,6 +144,16 @@ const App = () => {
                 data.message ||
                 'Solicitud procesada.'
             );
+
+            /*
+             * Si la solicitud terminó correctamente,
+             * limpiamos el código para evitar
+             * reutilizarlo accidentalmente.
+             */
+            if (response.ok && codeInputRef.current) {
+                codeInputRef.current.value = '';
+            }
+
         } catch (error) {
             console.error('Error:', error);
 
@@ -121,7 +192,7 @@ const App = () => {
 
                     </header>
 
-                    {/* UBICACIONES */}
+                    {/* PUERTAS */}
                     <div className="devices">
 
                         {DEVICES.map((device) => {
@@ -144,6 +215,7 @@ const App = () => {
                                         )
                                     }
                                     disabled={isLoading}
+                                    aria-pressed={isSelected}
                                 >
 
                                     <div className="device-icon">
@@ -181,22 +253,42 @@ const App = () => {
                     {/* FORMULARIO */}
                     <form onSubmit={handleSubmit}>
 
-                        <label htmlFor="code">
+                        <label
+                            htmlFor="code"
+                            className={
+                                !selectedDeviceId
+                                    ? 'disabled-label'
+                                    : ''
+                            }
+                        >
                             Código de acceso
                         </label>
 
                         <input
+                            ref={codeInputRef}
                             id="code"
                             name="code"
-                            placeholder="Ingrese su código"
+                            placeholder={
+                                selectedDeviceId
+                                    ? 'Ingrese su código'
+                                    : 'Seleccione una puerta primero'
+                            }
                             type="number"
                             inputMode="numeric"
                             pattern="[0-9]*"
                             maxLength={6}
-                            className="code-input"
+                            className={`code-input ${
+                                !selectedDeviceId
+                                    ? 'code-input-disabled'
+                                    : ''
+                            }`}
                             required
-                            disabled={isLoading}
+                            disabled={
+                                !selectedDeviceId ||
+                                isLoading
+                            }
                             autoComplete="off"
+                            aria-disabled={!selectedDeviceId}
                             onInput={(e) => {
                                 e.target.value =
                                     e.target.value
@@ -209,8 +301,8 @@ const App = () => {
                             type="submit"
                             className="open-button"
                             disabled={
-                                isLoading ||
-                                !selectedDeviceId
+                                !selectedDeviceId ||
+                                isLoading
                             }
                         >
 
@@ -224,6 +316,7 @@ const App = () => {
                                     <span className="lock-icon">
                                         🔓
                                     </span>
+
                                     Abrir puerta
                                 </>
                             )}
@@ -240,6 +333,8 @@ const App = () => {
                                     ? 'loading'
                                     : ''
                             }`}
+                            role="status"
+                            aria-live="polite"
                         >
                             {message}
                         </div>
